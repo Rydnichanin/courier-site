@@ -1,110 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Автоподсчёт зарплаты</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-body { font-family: Arial; max-width: 800px; margin: auto; padding: 20px; }
-input, button { padding: 5px; margin: 5px 0; width: 100%; }
-#history { margin-top: 20px; }
-.history-item { display: flex; justify-content: space-between; margin: 5px 0; }
-canvas { margin-top: 20px; }
-</style>
-</head>
-<body>
-
-<h2>Учёт зарплаты</h2>
-
-<label>Дата транзакции:</label>
-<input type="date" id="transDate">
-
-<label>Сумма (положительное число — аванс, отрицательное — выплата):</label>
-<input type="number" id="change">
-
-<button onclick="addTransaction()">Добавить транзакцию</button>
-
-<div id="history"></div>
-<div id="result"></div>
-
-<canvas id="salaryChart" width="700" height="300"></canvas>
-
-<script>
-let rate = 15000;
-let startDate = new Date("2025-10-23");
-let transactions = [];
-
-// Подсчёт баланса по дням
-function calculateBalance() {
-    let today = new Date();
-    let daysWorked = Math.floor((today - startDate)/(1000*60*60*24)) + 1;
-    let balanceByDay = [];
-    let total = 0;
-
-    for (let i=0; i<daysWorked; i++) {
-        total += rate;
-        let currentDate = new Date(startDate);
-        currentDate.setDate(currentDate.getDate() + i);
-        transactions.forEach(t => {
-            let tDate = new Date(t.date);
-            if (tDate.toDateString() === currentDate.toDateString()) total -= t.amount;
-        });
-        balanceByDay.push({date: new Date(currentDate), balance: total});
-    }
-    return balanceByDay;
-}
-
-// Добавление транзакции
-function addTransaction() {
-    let dateInput = document.getElementById('transDate').value;
-    let amount = parseFloat(document.getElementById('change').value);
-    if (!dateInput || isNaN(amount)) return;
-
-    transactions.push({date: dateInput, amount: amount});
-    document.getElementById('transDate').value = "";
-    document.getElementById('change').value = "";
-    updateDisplay();
-}
-
-// Обновление отображения
-function updateDisplay() {
-    let historyHTML = "<h3>История транзакций:</h3>";
-    transactions.forEach((t,i)=>historyHTML+=`<div>${t.date}: ${t.amount>0?'+':'-'}${Math.abs(t.amount)}</div>`);
-    document.getElementById('history').innerHTML = historyHTML;
-
-    let balanceByDay = calculateBalance();
-    let totalBalance = balanceByDay[balanceByDay.length-1]?.balance || 0;
-    document.getElementById('result').innerHTML = `<h3>Итог: ${totalBalance.toLocaleString('ru-RU')} тенге</h3>`;
-
-    drawChart(balanceByDay);
-}
-
-// График
-function drawChart(balanceByDay) {
-    const ctx = document.getElementById('salaryChart').getContext('2d');
-    if(window.salaryChartInstance) window.salaryChartInstance.destroy();
-    window.salaryChartInstance = new Chart(ctx,{
-        type:'line',
-        data:{
-            labels: balanceByDay.map(b=>b.date.toISOString().split('T')[0]),
-            datasets:[{
-                label:'Баланс',
-                data: balanceByDay.map(b=>b.balance),
-                borderColor:'green',
-                fill:false,
-                tension:0.3
-            }]
-        }
-    });
-}
-
-updateDisplay();
-</script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="ru">
-<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Курьерская платформа — заказы, доставка, аналитика</title>
@@ -122,9 +18,7 @@ updateDisplay();
       --border: #e5e7eb;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -181,9 +75,7 @@ updateDisplay();
       padding-bottom: 64px;
     }
 
-    section {
-      margin-top: 40px;
-    }
+    section { margin-top: 40px; }
 
     .card {
       background: var(--card);
@@ -193,18 +85,9 @@ updateDisplay();
       border: 1px solid var(--border);
     }
 
-    .grid {
-      display: grid;
-      gap: 20px;
-    }
-
-    .grid-2 {
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    }
-
-    .grid-3 {
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    }
+    .grid { display: grid; gap: 20px; }
+    .grid-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 
     .section-title {
       display: flex;
@@ -213,13 +96,8 @@ updateDisplay();
       margin-bottom: 16px;
     }
 
-    .section-title h2 {
-      margin: 0;
-    }
-
-    .muted {
-      color: var(--muted);
-    }
+    .section-title h2 { margin: 0; }
+    .muted { color: var(--muted); }
 
     .status-chip {
       display: inline-flex;
@@ -232,10 +110,7 @@ updateDisplay();
       font-weight: 600;
     }
 
-    .timeline {
-      display: grid;
-      gap: 12px;
-    }
+    .timeline { display: grid; gap: 12px; }
 
     .timeline-step {
       display: flex;
@@ -251,33 +126,15 @@ updateDisplay();
       margin-top: 6px;
     }
 
-    .timeline-step.active .dot {
-      background: var(--success);
-    }
+    .timeline-step.active .dot { background: var(--success); }
+    .timeline-step h4 { margin: 0 0 4px; }
 
-    .timeline-step h4 {
-      margin: 0 0 4px;
-    }
+    .controls { display: grid; gap: 12px; }
+    .controls label { font-weight: 600; }
 
-    .controls {
-      display: grid;
-      gap: 12px;
-    }
+    input, select, button, textarea { font-family: inherit; }
 
-    .controls label {
-      font-weight: 600;
-    }
-
-    input,
-    select,
-    button,
-    textarea {
-      font-family: inherit;
-    }
-
-    input,
-    select,
-    textarea {
+    input, select, textarea {
       padding: 10px 12px;
       border-radius: 10px;
       border: 1px solid var(--border);
@@ -296,15 +153,8 @@ updateDisplay();
       transition: 0.2s ease;
     }
 
-    button.secondary {
-      background: #e2e8f0;
-      color: var(--text);
-    }
-
-    button:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
+    button.secondary { background: #e2e8f0; color: var(--text); }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
 
     .notifications {
       display: grid;
@@ -326,8 +176,7 @@ updateDisplay();
       font-size: 0.95rem;
     }
 
-    .stats-table th,
-    .stats-table td {
+    .stats-table th, .stats-table td {
       padding: 10px 8px;
       border-bottom: 1px solid var(--border);
       text-align: left;
@@ -341,9 +190,7 @@ updateDisplay();
       border-bottom: 1px dashed var(--border);
     }
 
-    .menu-item:last-child {
-      border-bottom: none;
-    }
+    .menu-item:last-child { border-bottom: none; }
 
     .pill {
       background: #ecfccb;
@@ -367,13 +214,8 @@ updateDisplay();
     }
 
     @media (max-width: 640px) {
-      header {
-        padding-bottom: 56px;
-      }
-
-      button {
-        width: 100%;
-      }
+      header { padding-bottom: 56px; }
+      button { width: 100%; }
     }
   </style>
 </head>
@@ -393,11 +235,11 @@ updateDisplay();
           <span class="badge">Единый кабинет администратора</span>
         </div>
       </div>
+
       <div class="card">
         <h3>Быстрый старт</h3>
         <p class="muted">
-          Выберите роль и посмотрите, как меняются статусы заказа, уведомления и
-          статистика.
+          Выберите роль и посмотрите, как меняются статусы заказа, уведомления и статистика.
         </p>
         <div class="controls">
           <label for="roleSelect">Роль для просмотра</label>
@@ -419,15 +261,17 @@ updateDisplay();
       <div class="section-title">
         <h2>Живой сценарий заказа</h2>
         <p class="muted">
-          Ниже — модель работы: клиент делает заказ, заведение принимает, курьер
-          подтверждает, заказ готовится, доставляется и закрывается.
+          Клиент делает заказ → заведение принимает → курьер подтверждает → заказ готовится →
+          доставляется → закрывается.
         </p>
       </div>
+
       <div class="grid grid-2">
         <div>
           <div class="status-chip" id="currentStatus">Статус: Заказ создан</div>
           <div class="timeline" id="timeline"></div>
         </div>
+
         <div class="card">
           <h3>Управление заказом</h3>
           <div class="controls">
@@ -448,7 +292,7 @@ updateDisplay();
       <div class="card" id="client">
         <div class="section-title">
           <h2>Кабинет клиента</h2>
-          <p class="muted">Создавайте заказы, следите за статусом и сохранёнными данными.</p>
+          <p class="muted">Создание заказа, статус и сохранённые данные.</p>
         </div>
         <div class="controls">
           <label>Имя</label>
@@ -464,10 +308,12 @@ updateDisplay();
       <div class="card" id="restaurant">
         <div class="section-title">
           <h2>Кабинет заведения</h2>
-          <p class="muted">Принимайте заказы, задавайте время и смотрите продажи.</p>
+          <p class="muted">Подтверждение, время готовности, меню.</p>
         </div>
+
         <div class="notifications" id="restaurantNotifications"></div>
         <h3>Меню заведения</h3>
+
         <div class="menu-item">
           <div>
             <strong>Бургер “Премиум”</strong>
@@ -478,6 +324,7 @@ updateDisplay();
             <div class="pill">Хит</div>
           </div>
         </div>
+
         <div class="menu-item">
           <div>
             <strong>Поке с лососем</strong>
@@ -485,6 +332,7 @@ updateDisplay();
           </div>
           <strong>3 100 ₸</strong>
         </div>
+
         <div class="menu-item">
           <div>
             <strong>Латте 400 мл</strong>
@@ -497,8 +345,9 @@ updateDisplay();
       <div class="card" id="courier">
         <div class="section-title">
           <h2>Кабинет курьера</h2>
-          <p class="muted">Подтверждайте заказ, отмечайте забор и доставку.</p>
+          <p class="muted">Подтверждение → забор → доставка.</p>
         </div>
+
         <div class="notifications" id="courierNotifications"></div>
         <div class="controls">
           <label>Активные доставки</label>
@@ -513,7 +362,7 @@ updateDisplay();
       <div class="card" id="director">
         <div class="section-title">
           <h2>Директор курьеров</h2>
-          <p class="muted">Вся статистика по курьерам, заведениям и доходам.</p>
+          <p class="muted">Статистика по курьерам, заведениям и доходам.</p>
         </div>
         <div class="toolbar">
           <label for="directorPeriod">Период</label>
@@ -530,7 +379,7 @@ updateDisplay();
       <div class="card" id="admin">
         <div class="section-title">
           <h2>Админ-панель</h2>
-          <p class="muted">Управление всеми пользователями, заведениями и доступами.</p>
+          <p class="muted">Управление всеми пользователями и заведениями.</p>
         </div>
         <div class="toolbar">
           <label for="adminPeriod">Период</label>
@@ -597,10 +446,7 @@ updateDisplay();
       { id: "delivered", label: "Курьер доставил заказ", roles: ["courier", "restaurant", "client"] },
     ];
 
-    const state = {
-      status: "created",
-      prepMinutes: 25,
-    };
+    const state = { status: "created", prepMinutes: 25 };
 
     const statusLabel = {
       created: "Заказ создан",
@@ -612,34 +458,29 @@ updateDisplay();
       delivered: "Доставлен",
     };
 
-    const notifications = {
-      client: [],
-      restaurant: [],
-      courier: [],
-    };
-
-    const statusMap = {
-      acceptOrder: "accepted",
-      confirmCourier: "courier_confirmed",
-      markReady: "ready",
-      pickupOrder: "picked",
-      deliverOrder: "delivered",
-    };
+    const notifications = { client: [], restaurant: [], courier: [] };
 
     const timelineEl = document.getElementById("timeline");
     const currentStatusEl = document.getElementById("currentStatus");
 
+    function roleLabel(role) {
+      const labels = { client: "Клиент", restaurant: "Заведение", courier: "Курьер" };
+      return labels[role] ?? role;
+    }
+
     function renderTimeline() {
       timelineEl.innerHTML = flowSteps
         .map((step) => {
-          const active = flowSteps.findIndex((item) => item.id === step.id) <=
+          const active =
+            flowSteps.findIndex((item) => item.id === step.id) <=
             flowSteps.findIndex((item) => item.id === state.status);
+
           return `
             <div class="timeline-step ${active ? "active" : ""}">
               <div class="dot"></div>
               <div>
                 <h4>${step.label}</h4>
-                <div class="muted">${step.roles.map((role) => roleLabel(role)).join(", ")}</div>
+                <div class="muted">${step.roles.map(roleLabel).join(", ")}</div>
               </div>
             </div>
           `;
@@ -649,20 +490,9 @@ updateDisplay();
       currentStatusEl.textContent = `Статус: ${statusLabel[state.status]}`;
     }
 
-    function roleLabel(role) {
-      const labels = {
-        client: "Клиент",
-        restaurant: "Заведение",
-        courier: "Курьер",
-      };
-      return labels[role] ?? role;
-    }
-
     function addNotification(target, message) {
       notifications[target].unshift(message);
-      if (notifications[target].length > 4) {
-        notifications[target].pop();
-      }
+      if (notifications[target].length > 4) notifications[target].pop();
     }
 
     function setNotifications() {
@@ -706,9 +536,7 @@ updateDisplay();
       };
 
       const messages = nowMessage[state.status];
-      Object.keys(messages).forEach((role) => {
-        addNotification(role, messages[role]);
-      });
+      Object.keys(messages).forEach((role) => addNotification(role, messages[role]));
     }
 
     function renderNotifications() {
@@ -722,7 +550,7 @@ updateDisplay();
 
     function updateFlowButtons() {
       document.getElementById("acceptOrder").disabled = state.status !== "created";
-      document.getElementById("confirmCourier").disabled = !["prep_set"].includes(state.status);
+      document.getElementById("confirmCourier").disabled = state.status !== "prep_set";
       document.getElementById("markReady").disabled = !["courier_confirmed", "prep_set"].includes(state.status);
       document.getElementById("pickupOrder").disabled = state.status !== "ready";
       document.getElementById("deliverOrder").disabled = state.status !== "picked";
@@ -730,10 +558,12 @@ updateDisplay();
 
     function setStatus(nextStatus) {
       state.status = nextStatus;
+
       if (nextStatus === "accepted") {
         state.prepMinutes = Number(document.getElementById("prepTime").value || 25);
         state.status = "prep_set";
       }
+
       renderTimeline();
       setNotifications();
       renderNotifications();
@@ -764,107 +594,33 @@ updateDisplay();
     document.getElementById("jumpToRole").addEventListener("click", () => {
       const role = document.getElementById("roleSelect").value;
       const section = document.getElementById(role);
-      if (section) {
-        section.scrollIntoView({ behavior: "smooth" });
-      }
+      if (section) section.scrollIntoView({ behavior: "smooth" });
     });
 
     const statsData = {
       restaurant: {
-        day: {
-          sales: "18 заказов / 124 000 ₸",
-          deliveries: "12 доставок / 18 000 ₸",
-          topItem: "Бургер “Премиум”",
-        },
-        week: {
-          sales: "134 заказа / 812 000 ₸",
-          deliveries: "88 доставок / 132 000 ₸",
-          topItem: "Латте 400 мл",
-        },
-        month: {
-          sales: "502 заказа / 3 640 000 ₸",
-          deliveries: "310 доставок / 465 000 ₸",
-          topItem: "Поке с лососем",
-        },
-        year: {
-          sales: "5 820 заказов / 44 200 000 ₸",
-          deliveries: "3 540 доставок / 5 310 000 ₸",
-          topItem: "Бургер “Премиум”",
-        },
+        day: { sales: "18 заказов / 124 000 ₸", deliveries: "12 доставок / 18 000 ₸", topItem: "Бургер “Премиум”" },
+        week: { sales: "134 заказа / 812 000 ₸", deliveries: "88 доставок / 132 000 ₸", topItem: "Латте 400 мл" },
+        month: { sales: "502 заказа / 3 640 000 ₸", deliveries: "310 доставок / 465 000 ₸", topItem: "Поке с лососем" },
+        year: { sales: "5 820 заказов / 44 200 000 ₸", deliveries: "3 540 доставок / 5 310 000 ₸", topItem: "Бургер “Премиум”" },
       },
       courier: {
-        day: {
-          deliveries: "8 доставок",
-          income: "14 400 ₸",
-          percent: "2 160 ₸",
-        },
-        week: {
-          deliveries: "52 доставки",
-          income: "93 600 ₸",
-          percent: "14 040 ₸",
-        },
-        month: {
-          deliveries: "214 доставок",
-          income: "385 200 ₸",
-          percent: "57 780 ₸",
-        },
-        year: {
-          deliveries: "2 480 доставок",
-          income: "4 460 000 ₸",
-          percent: "669 000 ₸",
-        },
+        day: { deliveries: "8 доставок", income: "14 400 ₸", percent: "2 160 ₸" },
+        week: { deliveries: "52 доставки", income: "93 600 ₸", percent: "14 040 ₸" },
+        month: { deliveries: "214 доставок", income: "385 200 ₸", percent: "57 780 ₸" },
+        year: { deliveries: "2 480 доставок", income: "4 460 000 ₸", percent: "669 000 ₸" },
       },
       director: {
-        day: {
-          deliveries: "63 доставки",
-          earnings: "101 000 ₸",
-          courierIncome: "83 500 ₸",
-          topRestaurant: "Burger House",
-        },
-        week: {
-          deliveries: "430 доставок",
-          earnings: "690 000 ₸",
-          courierIncome: "562 000 ₸",
-          topRestaurant: "Sushi&Co",
-        },
-        month: {
-          deliveries: "1 720 доставок",
-          earnings: "2 760 000 ₸",
-          courierIncome: "2 200 000 ₸",
-          topRestaurant: "Burger House",
-        },
-        year: {
-          deliveries: "19 840 доставок",
-          earnings: "31 800 000 ₸",
-          courierIncome: "25 400 000 ₸",
-          topRestaurant: "Pizza Lab",
-        },
+        day: { deliveries: "63 доставки", earnings: "101 000 ₸", courierIncome: "83 500 ₸", topRestaurant: "Burger House" },
+        week: { deliveries: "430 доставок", earnings: "690 000 ₸", courierIncome: "562 000 ₸", topRestaurant: "Sushi&Co" },
+        month: { deliveries: "1 720 доставок", earnings: "2 760 000 ₸", courierIncome: "2 200 000 ₸", topRestaurant: "Burger House" },
+        year: { deliveries: "19 840 доставок", earnings: "31 800 000 ₸", courierIncome: "25 400 000 ₸", topRestaurant: "Pizza Lab" },
       },
       admin: {
-        day: {
-          clients: "85 активных",
-          restaurants: "12 заведений",
-          couriers: "26 курьеров",
-          revenue: "128 000 ₸",
-        },
-        week: {
-          clients: "610 активных",
-          restaurants: "15 заведений",
-          couriers: "40 курьеров",
-          revenue: "940 000 ₸",
-        },
-        month: {
-          clients: "2 300 активных",
-          restaurants: "22 заведений",
-          couriers: "64 курьера",
-          revenue: "3 980 000 ₸",
-        },
-        year: {
-          clients: "24 600 активных",
-          restaurants: "68 заведений",
-          couriers: "210 курьеров",
-          revenue: "45 900 000 ₸",
-        },
+        day: { clients: "85 активных", restaurants: "12 заведений", couriers: "26 курьеров", revenue: "128 000 ₸" },
+        week: { clients: "610 активных", restaurants: "15 заведений", couriers: "40 курьеров", revenue: "940 000 ₸" },
+        month: { clients: "2 300 активных", restaurants: "22 заведений", couriers: "64 курьера", revenue: "3 980 000 ₸" },
+        year: { clients: "24 600 активных", restaurants: "68 заведений", couriers: "210 курьеров", revenue: "45 900 000 ₸" },
       },
     };
 
@@ -873,9 +629,7 @@ updateDisplay();
       const data = statsData[section][period];
       table.innerHTML = `
         <tr><th>Показатель</th><th>Значение</th></tr>
-        ${rows
-          .map((row) => `<tr><td>${row.label}</td><td>${data[row.key]}</td></tr>`)
-          .join("")}
+        ${rows.map((row) => `<tr><td>${row.label}</td><td>${data[row.key]}</td></tr>`).join("")}
       `;
     }
 
