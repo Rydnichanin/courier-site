@@ -102,4 +102,850 @@ updateDisplay();
 </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Курьерская платформа — заказы, доставка, аналитика</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --text: #1f2933;
+      --muted: #52606d;
+      --primary: #2563eb;
+      --primary-dark: #1e40af;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --border: #e5e7eb;
+    }
 
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb 45%, #38bdf8);
+      color: #fff;
+      padding: 48px 16px 72px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      align-items: center;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 3vw, 3rem);
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 24px;
+    }
+
+    .hero .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .badge {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+    }
+
+    main {
+      margin-top: -40px;
+      padding-bottom: 64px;
+    }
+
+    section {
+      margin-top: 40px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+      padding: 24px;
+      border: 1px solid var(--border);
+    }
+
+    .grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    .section-title {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #1e3a8a;
+      font-weight: 600;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+    }
+
+    .timeline-step {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--border);
+      margin-top: 6px;
+    }
+
+    .timeline-step.active .dot {
+      background: var(--success);
+    }
+
+    .timeline-step h4 {
+      margin: 0 0 4px;
+    }
+
+    .controls {
+      display: grid;
+      gap: 12px;
+    }
+
+    .controls label {
+      font-weight: 600;
+    }
+
+    input,
+    select,
+    button,
+    textarea {
+      font-family: inherit;
+    }
+
+    input,
+    select,
+    textarea {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      width: 100%;
+    }
+
+    button {
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    button.secondary {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .notifications {
+      display: grid;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .notification {
+      background: #f8fafc;
+      border-left: 4px solid var(--primary);
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+    }
+
+    .stats-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    .stats-table th,
+    .stats-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .menu-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .menu-item:last-child {
+      border-bottom: none;
+    }
+
+    .pill {
+      background: #ecfccb;
+      color: #3f6212;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    footer {
+      padding: 32px 16px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 640px) {
+      header {
+        padding-bottom: 56px;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container hero">
+      <div>
+        <h1>Единая платформа для курьеров, заведений и клиентов</h1>
+        <p>
+          Управляйте заказами, подтверждениями и доставкой в реальном времени.
+          Админ и директор курьеров видят полную статистику по всем доставкам.
+        </p>
+        <div class="badge-row">
+          <span class="badge">Контроль статусов</span>
+          <span class="badge">Меню заведений</span>
+          <span class="badge">Статистика по доставкам</span>
+          <span class="badge">Единый кабинет администратора</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Быстрый старт</h3>
+        <p class="muted">
+          Выберите роль и посмотрите, как меняются статусы заказа, уведомления и
+          статистика.
+        </p>
+        <div class="controls">
+          <label for="roleSelect">Роль для просмотра</label>
+          <select id="roleSelect">
+            <option value="client">Клиент</option>
+            <option value="restaurant">Заведение</option>
+            <option value="courier">Курьер</option>
+            <option value="director">Директор курьеров</option>
+            <option value="admin">Админ</option>
+          </select>
+          <button type="button" id="jumpToRole">Перейти в кабинет</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <div class="section-title">
+        <h2>Живой сценарий заказа</h2>
+        <p class="muted">
+          Ниже — модель работы: клиент делает заказ, заведение принимает, курьер
+          подтверждает, заказ готовится, доставляется и закрывается.
+        </p>
+      </div>
+      <div class="grid grid-2">
+        <div>
+          <div class="status-chip" id="currentStatus">Статус: Заказ создан</div>
+          <div class="timeline" id="timeline"></div>
+        </div>
+        <div class="card">
+          <h3>Управление заказом</h3>
+          <div class="controls">
+            <label for="prepTime">Время готовности (минуты)</label>
+            <input type="number" id="prepTime" min="5" value="25" />
+            <button type="button" id="acceptOrder">Заведение приняло заказ</button>
+            <button type="button" id="confirmCourier">Курьер подтвердил</button>
+            <button type="button" id="markReady">Заказ готов</button>
+            <button type="button" id="pickupOrder">Курьер забрал</button>
+            <button type="button" id="deliverOrder">Доставлено клиенту</button>
+            <button type="button" class="secondary" id="resetFlow">Сбросить сценарий</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid grid-3">
+      <div class="card" id="client">
+        <div class="section-title">
+          <h2>Кабинет клиента</h2>
+          <p class="muted">Создавайте заказы, следите за статусом и сохранёнными данными.</p>
+        </div>
+        <div class="controls">
+          <label>Имя</label>
+          <input type="text" value="Айгерим" />
+          <label>Телефон</label>
+          <input type="text" value="+7 707 555-21-21" />
+          <label>Адрес</label>
+          <input type="text" value="Алматы, Абая 25" />
+        </div>
+        <div class="notifications" id="clientNotifications"></div>
+      </div>
+
+      <div class="card" id="restaurant">
+        <div class="section-title">
+          <h2>Кабинет заведения</h2>
+          <p class="muted">Принимайте заказы, задавайте время и смотрите продажи.</p>
+        </div>
+        <div class="notifications" id="restaurantNotifications"></div>
+        <h3>Меню заведения</h3>
+        <div class="menu-item">
+          <div>
+            <strong>Бургер “Премиум”</strong>
+            <div class="muted">Говядина, сыр, фирменный соус</div>
+          </div>
+          <div>
+            <strong>2 300 ₸</strong>
+            <div class="pill">Хит</div>
+          </div>
+        </div>
+        <div class="menu-item">
+          <div>
+            <strong>Поке с лососем</strong>
+            <div class="muted">Рис, рыба, овощи, соус</div>
+          </div>
+          <strong>3 100 ₸</strong>
+        </div>
+        <div class="menu-item">
+          <div>
+            <strong>Латте 400 мл</strong>
+            <div class="muted">Кофе + молоко</div>
+          </div>
+          <strong>1 200 ₸</strong>
+        </div>
+      </div>
+
+      <div class="card" id="courier">
+        <div class="section-title">
+          <h2>Кабинет курьера</h2>
+          <p class="muted">Подтверждайте заказ, отмечайте забор и доставку.</p>
+        </div>
+        <div class="notifications" id="courierNotifications"></div>
+        <div class="controls">
+          <label>Активные доставки</label>
+          <input type="text" value="1 (Burger House)" disabled />
+          <label>Процент комиссии</label>
+          <input type="text" value="15%" disabled />
+        </div>
+      </div>
+    </section>
+
+    <section class="grid grid-2">
+      <div class="card" id="director">
+        <div class="section-title">
+          <h2>Директор курьеров</h2>
+          <p class="muted">Вся статистика по курьерам, заведениям и доходам.</p>
+        </div>
+        <div class="toolbar">
+          <label for="directorPeriod">Период</label>
+          <select id="directorPeriod">
+            <option value="day">День</option>
+            <option value="week">Неделя</option>
+            <option value="month" selected>Месяц</option>
+            <option value="year">Год</option>
+          </select>
+        </div>
+        <table class="stats-table" id="directorStats"></table>
+      </div>
+
+      <div class="card" id="admin">
+        <div class="section-title">
+          <h2>Админ-панель</h2>
+          <p class="muted">Управление всеми пользователями, заведениями и доступами.</p>
+        </div>
+        <div class="toolbar">
+          <label for="adminPeriod">Период</label>
+          <select id="adminPeriod">
+            <option value="day">День</option>
+            <option value="week">Неделя</option>
+            <option value="month" selected>Месяц</option>
+            <option value="year">Год</option>
+          </select>
+        </div>
+        <table class="stats-table" id="adminStats"></table>
+      </div>
+    </section>
+
+    <section class="grid grid-2">
+      <div class="card">
+        <div class="section-title">
+          <h2>Статистика заведения</h2>
+          <p class="muted">Продажи и доставки с разбивкой по периоду.</p>
+        </div>
+        <div class="toolbar">
+          <label for="restaurantPeriod">Период</label>
+          <select id="restaurantPeriod">
+            <option value="day">День</option>
+            <option value="week">Неделя</option>
+            <option value="month" selected>Месяц</option>
+            <option value="year">Год</option>
+          </select>
+        </div>
+        <table class="stats-table" id="restaurantStats"></table>
+      </div>
+
+      <div class="card">
+        <div class="section-title">
+          <h2>Статистика курьера</h2>
+          <p class="muted">История доставок и сумма заработка.</p>
+        </div>
+        <div class="toolbar">
+          <label for="courierPeriod">Период</label>
+          <select id="courierPeriod">
+            <option value="day">День</option>
+            <option value="week">Неделя</option>
+            <option value="month" selected>Месяц</option>
+            <option value="year">Год</option>
+          </select>
+        </div>
+        <table class="stats-table" id="courierStats"></table>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Курьерская платформа · Заказы, уведомления, доставка и аналитика в одном месте.
+  </footer>
+
+  <script>
+    const flowSteps = [
+      { id: "created", label: "Клиент сделал заказ", roles: ["client"] },
+      { id: "accepted", label: "Заведение приняло заказ", roles: ["restaurant", "client"] },
+      { id: "prep_set", label: "Заведение указало время готовности", roles: ["restaurant", "courier"] },
+      { id: "courier_confirmed", label: "Курьер подтвердил заказ", roles: ["courier"] },
+      { id: "ready", label: "Заведение отметило заказ готовым", roles: ["restaurant", "courier", "client"] },
+      { id: "picked", label: "Курьер забрал заказ", roles: ["courier", "restaurant", "client"] },
+      { id: "delivered", label: "Курьер доставил заказ", roles: ["courier", "restaurant", "client"] },
+    ];
+
+    const state = {
+      status: "created",
+      prepMinutes: 25,
+    };
+
+    const statusLabel = {
+      created: "Заказ создан",
+      accepted: "Принят заведением",
+      prep_set: "В работе (ожидаем готовность)",
+      courier_confirmed: "Курьер подтверждён",
+      ready: "Готов к выдаче",
+      picked: "В пути",
+      delivered: "Доставлен",
+    };
+
+    const notifications = {
+      client: [],
+      restaurant: [],
+      courier: [],
+    };
+
+    const statusMap = {
+      acceptOrder: "accepted",
+      confirmCourier: "courier_confirmed",
+      markReady: "ready",
+      pickupOrder: "picked",
+      deliverOrder: "delivered",
+    };
+
+    const timelineEl = document.getElementById("timeline");
+    const currentStatusEl = document.getElementById("currentStatus");
+
+    function renderTimeline() {
+      timelineEl.innerHTML = flowSteps
+        .map((step) => {
+          const active = flowSteps.findIndex((item) => item.id === step.id) <=
+            flowSteps.findIndex((item) => item.id === state.status);
+          return `
+            <div class="timeline-step ${active ? "active" : ""}">
+              <div class="dot"></div>
+              <div>
+                <h4>${step.label}</h4>
+                <div class="muted">${step.roles.map((role) => roleLabel(role)).join(", ")}</div>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+
+      currentStatusEl.textContent = `Статус: ${statusLabel[state.status]}`;
+    }
+
+    function roleLabel(role) {
+      const labels = {
+        client: "Клиент",
+        restaurant: "Заведение",
+        courier: "Курьер",
+      };
+      return labels[role] ?? role;
+    }
+
+    function addNotification(target, message) {
+      notifications[target].unshift(message);
+      if (notifications[target].length > 4) {
+        notifications[target].pop();
+      }
+    }
+
+    function setNotifications() {
+      const prepTime = state.prepMinutes;
+      const nowMessage = {
+        created: {
+          client: "Заказ отправлен в заведение.",
+          restaurant: "Новый заказ ожидает подтверждения.",
+          courier: "Ожидайте подтверждение заведения.",
+        },
+        accepted: {
+          client: "Заказ принят заведением.",
+          restaurant: "Укажите время готовности заказа.",
+          courier: "Готовится расчет времени получения.",
+        },
+        prep_set: {
+          client: `Заказ готовится. Оценка ${prepTime} мин.`,
+          restaurant: `Время готовности: ${prepTime} мин.`,
+          courier: `Заказ будет готов через ${prepTime} мин. Подтвердите получение.`,
+        },
+        courier_confirmed: {
+          client: `Курьер подтвердил заказ. Готовится через ${prepTime} мин.`,
+          restaurant: "Курьер подтвердил, готовьте заказ.",
+          courier: "Подтверждено. Ожидайте готовность.",
+        },
+        ready: {
+          client: "Заказ готов. Ожидаем курьера.",
+          restaurant: "Заказ готов к выдаче.",
+          courier: "Заказ готов. Заберите его.",
+        },
+        picked: {
+          client: "Курьер забрал заказ, в пути.",
+          restaurant: "Заказ у курьера.",
+          courier: "Заказ забран, доставляйте клиенту.",
+        },
+        delivered: {
+          client: "Заказ доставлен. Спасибо!",
+          restaurant: "Заказ доставлен клиенту.",
+          courier: "Доставка завершена.",
+        },
+      };
+
+      const messages = nowMessage[state.status];
+      Object.keys(messages).forEach((role) => {
+        addNotification(role, messages[role]);
+      });
+    }
+
+    function renderNotifications() {
+      ["client", "restaurant", "courier"].forEach((role) => {
+        const container = document.getElementById(`${role}Notifications`);
+        container.innerHTML = notifications[role]
+          .map((message) => `<div class="notification">${message}</div>`)
+          .join("");
+      });
+    }
+
+    function updateFlowButtons() {
+      document.getElementById("acceptOrder").disabled = state.status !== "created";
+      document.getElementById("confirmCourier").disabled = !["prep_set"].includes(state.status);
+      document.getElementById("markReady").disabled = !["courier_confirmed", "prep_set"].includes(state.status);
+      document.getElementById("pickupOrder").disabled = state.status !== "ready";
+      document.getElementById("deliverOrder").disabled = state.status !== "picked";
+    }
+
+    function setStatus(nextStatus) {
+      state.status = nextStatus;
+      if (nextStatus === "accepted") {
+        state.prepMinutes = Number(document.getElementById("prepTime").value || 25);
+        state.status = "prep_set";
+      }
+      renderTimeline();
+      setNotifications();
+      renderNotifications();
+      updateFlowButtons();
+    }
+
+    document.getElementById("acceptOrder").addEventListener("click", () => setStatus("accepted"));
+    document.getElementById("confirmCourier").addEventListener("click", () => setStatus("courier_confirmed"));
+    document.getElementById("markReady").addEventListener("click", () => setStatus("ready"));
+    document.getElementById("pickupOrder").addEventListener("click", () => setStatus("picked"));
+    document.getElementById("deliverOrder").addEventListener("click", () => setStatus("delivered"));
+
+    document.getElementById("resetFlow").addEventListener("click", () => {
+      state.status = "created";
+      notifications.client = [];
+      notifications.restaurant = [];
+      notifications.courier = [];
+      setNotifications();
+      renderNotifications();
+      renderTimeline();
+      updateFlowButtons();
+    });
+
+    document.getElementById("prepTime").addEventListener("change", (event) => {
+      state.prepMinutes = Number(event.target.value || 25);
+    });
+
+    document.getElementById("jumpToRole").addEventListener("click", () => {
+      const role = document.getElementById("roleSelect").value;
+      const section = document.getElementById(role);
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth" });
+      }
+    });
+
+    const statsData = {
+      restaurant: {
+        day: {
+          sales: "18 заказов / 124 000 ₸",
+          deliveries: "12 доставок / 18 000 ₸",
+          topItem: "Бургер “Премиум”",
+        },
+        week: {
+          sales: "134 заказа / 812 000 ₸",
+          deliveries: "88 доставок / 132 000 ₸",
+          topItem: "Латте 400 мл",
+        },
+        month: {
+          sales: "502 заказа / 3 640 000 ₸",
+          deliveries: "310 доставок / 465 000 ₸",
+          topItem: "Поке с лососем",
+        },
+        year: {
+          sales: "5 820 заказов / 44 200 000 ₸",
+          deliveries: "3 540 доставок / 5 310 000 ₸",
+          topItem: "Бургер “Премиум”",
+        },
+      },
+      courier: {
+        day: {
+          deliveries: "8 доставок",
+          income: "14 400 ₸",
+          percent: "2 160 ₸",
+        },
+        week: {
+          deliveries: "52 доставки",
+          income: "93 600 ₸",
+          percent: "14 040 ₸",
+        },
+        month: {
+          deliveries: "214 доставок",
+          income: "385 200 ₸",
+          percent: "57 780 ₸",
+        },
+        year: {
+          deliveries: "2 480 доставок",
+          income: "4 460 000 ₸",
+          percent: "669 000 ₸",
+        },
+      },
+      director: {
+        day: {
+          deliveries: "63 доставки",
+          earnings: "101 000 ₸",
+          courierIncome: "83 500 ₸",
+          topRestaurant: "Burger House",
+        },
+        week: {
+          deliveries: "430 доставок",
+          earnings: "690 000 ₸",
+          courierIncome: "562 000 ₸",
+          topRestaurant: "Sushi&Co",
+        },
+        month: {
+          deliveries: "1 720 доставок",
+          earnings: "2 760 000 ₸",
+          courierIncome: "2 200 000 ₸",
+          topRestaurant: "Burger House",
+        },
+        year: {
+          deliveries: "19 840 доставок",
+          earnings: "31 800 000 ₸",
+          courierIncome: "25 400 000 ₸",
+          topRestaurant: "Pizza Lab",
+        },
+      },
+      admin: {
+        day: {
+          clients: "85 активных",
+          restaurants: "12 заведений",
+          couriers: "26 курьеров",
+          revenue: "128 000 ₸",
+        },
+        week: {
+          clients: "610 активных",
+          restaurants: "15 заведений",
+          couriers: "40 курьеров",
+          revenue: "940 000 ₸",
+        },
+        month: {
+          clients: "2 300 активных",
+          restaurants: "22 заведений",
+          couriers: "64 курьера",
+          revenue: "3 980 000 ₸",
+        },
+        year: {
+          clients: "24 600 активных",
+          restaurants: "68 заведений",
+          couriers: "210 курьеров",
+          revenue: "45 900 000 ₸",
+        },
+      },
+    };
+
+    function renderStats(section, period, rows) {
+      const table = document.getElementById(`${section}Stats`);
+      const data = statsData[section][period];
+      table.innerHTML = `
+        <tr><th>Показатель</th><th>Значение</th></tr>
+        ${rows
+          .map((row) => `<tr><td>${row.label}</td><td>${data[row.key]}</td></tr>`)
+          .join("")}
+      `;
+    }
+
+    function initStats() {
+      renderStats("restaurant", "month", [
+        { label: "Продажи", key: "sales" },
+        { label: "Доставки", key: "deliveries" },
+        { label: "Топ позиция", key: "topItem" },
+      ]);
+
+      renderStats("courier", "month", [
+        { label: "Доставки", key: "deliveries" },
+        { label: "Заработано", key: "income" },
+        { label: "Процент директору", key: "percent" },
+      ]);
+
+      renderStats("director", "month", [
+        { label: "Доставок всего", key: "deliveries" },
+        { label: "Доход директора", key: "earnings" },
+        { label: "Заработали курьеры", key: "courierIncome" },
+        { label: "Лидер заведений", key: "topRestaurant" },
+      ]);
+
+      renderStats("admin", "month", [
+        { label: "Клиенты", key: "clients" },
+        { label: "Заведения", key: "restaurants" },
+        { label: "Курьеры", key: "couriers" },
+        { label: "Выручка", key: "revenue" },
+      ]);
+    }
+
+    document.getElementById("restaurantPeriod").addEventListener("change", (event) => {
+      renderStats("restaurant", event.target.value, [
+        { label: "Продажи", key: "sales" },
+        { label: "Доставки", key: "deliveries" },
+        { label: "Топ позиция", key: "topItem" },
+      ]);
+    });
+
+    document.getElementById("courierPeriod").addEventListener("change", (event) => {
+      renderStats("courier", event.target.value, [
+        { label: "Доставки", key: "deliveries" },
+        { label: "Заработано", key: "income" },
+        { label: "Процент директору", key: "percent" },
+      ]);
+    });
+
+    document.getElementById("directorPeriod").addEventListener("change", (event) => {
+      renderStats("director", event.target.value, [
+        { label: "Доставок всего", key: "deliveries" },
+        { label: "Доход директора", key: "earnings" },
+        { label: "Заработали курьеры", key: "courierIncome" },
+        { label: "Лидер заведений", key: "topRestaurant" },
+      ]);
+    });
+
+    document.getElementById("adminPeriod").addEventListener("change", (event) => {
+      renderStats("admin", event.target.value, [
+        { label: "Клиенты", key: "clients" },
+        { label: "Заведения", key: "restaurants" },
+        { label: "Курьеры", key: "couriers" },
+        { label: "Выручка", key: "revenue" },
+      ]);
+    });
+
+    setNotifications();
+    renderNotifications();
+    renderTimeline();
+    updateFlowButtons();
+    initStats();
+  </script>
+</body>
+</html>
