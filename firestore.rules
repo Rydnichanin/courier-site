@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'; }
+    function isActive() { return signedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.active != false; }
+
+    match /users/{uid} {
+      allow create: if signedIn() && request.auth.uid == uid && request.resource.data.role == 'client';
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow update: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    match /tariffs/{id} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /orders/{id} {
+      allow create: if signedIn() && isActive() && request.resource.data.clientId == request.auth.uid;
+      allow read: if signedIn() && (resource.data.clientId == request.auth.uid || isAdmin() || resource.data.courierId == request.auth.uid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['restaurant','dispatcher']);
+      allow update: if signedIn() && (isAdmin() || resource.data.clientId == request.auth.uid || resource.data.courierId == request.auth.uid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['restaurant','dispatcher']);
+      allow delete: if isAdmin();
+    }
+
+    match /restaurants/{id} {
+      allow read: if true;
+      allow write: if isAdmin() || (signedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'restaurant' && resource.data.ownerId == request.auth.uid);
+      match /menu/{itemId} {
+        allow read: if true;
+        allow write: if isAdmin() || signedIn();
+      }
+    }
+
+    match /transactions/{id} {
+      allow read: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow write: if isAdmin();
+    }
+
+    match /settings/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}
