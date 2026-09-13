@@ -1,6 +1,7 @@
 // Конфигурация Firebase проекта todace-df1af
 // Эти данные используются браузером. Безопасность обеспечивается правилами Firestore/Auth.
-export const firebaseConfig = {
+
+window.firebaseConfig = {
   apiKey: "AIzaSyCL6-EtOKTlXcuM0ayOkJ_s7k-sZ3BdmYg",
   authDomain: "todace-df1af.firebaseapp.com",
   projectId: "todace-df1af",
